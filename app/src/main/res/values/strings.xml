@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Essential Remap Xposed</string>
+    <string name="module_description">Disable or remap button 250</string>
+</resources>
