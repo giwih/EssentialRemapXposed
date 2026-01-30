@@ -7,10 +7,6 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 
-import android.content.ComponentName
-import android.content.Intent
-import android.content.Context
-
 class MainHook : IXposedHookLoadPackage {
 
     companion object {
@@ -44,14 +40,12 @@ class MainHook : IXposedHookLoadPackage {
                                 KeyEvent.ACTION_DOWN -> {
                                     if (event.repeatCount == 0) {
                                         keyPressDetector.onKeyDown(
-                                            event.eventTime,
                                             onLongPress = { handleLongPress() }
                                         )
                                     }
                                 }
                                 KeyEvent.ACTION_UP -> {
                                     keyPressDetector.onKeyUp(
-                                        event.eventTime,
                                         onDoublePress = { handleDoublePress() },
                                         onSinglePress = { handleSinglePress() }
                                     )

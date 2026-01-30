@@ -12,18 +12,12 @@ android {
         targetSdk = 34
         versionCode = (project.findProperty("appVerCode") as String).toInt()
         versionName = project.findProperty("appVerName") as String
-        buildConfigField("String", "TARGET_PKG", "${project.findProperty("TARGET_PACKAGE")}")
-        buildConfigField("String", "TARGET_CLS", "${project.findProperty("TARGET_CLASS")}")
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-
-    buildFeatures {
-            buildConfig = true
-        }
 }
 
 dependencies {

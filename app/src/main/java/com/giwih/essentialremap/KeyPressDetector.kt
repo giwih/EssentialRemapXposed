@@ -24,7 +24,7 @@ class KeyPressDetector(
     private var pendingSinglePressRunnable: Runnable? = null
 
     /** Processing ACTION_DOWN */
-    fun onKeyDown(eventTime: Long, onLongPress: (() -> Unit)): Boolean {        
+    fun onKeyDown(onLongPress: (() -> Unit)): Boolean {        
         longPressHandled = false
         
         // Resetting previous single-click expectations if clicked again very quickly
@@ -45,7 +45,7 @@ class KeyPressDetector(
     }
 
     /** Processing ACTION_UP */ 
-    fun onKeyUp(eventTime: Long, onDoublePress: (() -> Unit)? = null, onSinglePress: (() -> Unit)? = null): Boolean {
+    fun onKeyUp(onDoublePress: (() -> Unit)? = null, onSinglePress: (() -> Unit)? = null): Boolean {
         if (pendingLongPressRunnable != null) {
             handler.removeCallbacks(pendingLongPressRunnable!!)
             pendingLongPressRunnable = null
