@@ -13,6 +13,14 @@ import android.content.Context
 
 class MainHook : IXposedHookLoadPackage {
 
+    companion object {
+        const val TARGET_SCAN_CODE = 250
+    }
+
+    private val keyPressDetector by lazy { 
+        KeyPressDetector() 
+    }
+
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
 
         if (lpparam.packageName != "android") return
@@ -30,28 +38,30 @@ class MainHook : IXposedHookLoadPackage {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         val event = param.args[0] as KeyEvent
                         
-                        if (event.scanCode == 250) {
+                        if (event.scanCode == TARGET_SCAN_CODE) {
                             
-                            if (event.action == KeyEvent.ACTION_DOWN) {
-                                try {
-                                    val intent = Intent().apply {
-                                        component = ComponentName(BuildConfig.TARGET_PKG, BuildConfig.TARGET_CLS)
-                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            when (event.action) {
+                                KeyEvent.ACTION_DOWN -> {
+                                    if (event.repeatCount == 0) {
+                                        keyPressDetector.onKeyDown(
+                                            event.eventTime,
+                                            onLongPress = { handleLongPress() }
+                                        )
                                     }
-
-                                    // val mContext = XposedHelpers.getObjectField(param.thisObject, "mContext") as Context
-                                    // mContext.startActivity(intent)
-                                    (XposedHelpers.getObjectField(param.thisObject, "mContext") as Context).startActivity(intent)
-                                    
-                                    XposedBridge.log("EssentialRemap: Activity started via Context")
-                                } catch (t: Throwable) {
-                                    XposedBridge.log("EssentialRemap ERROR: ${t.message}")
                                 }
+                                KeyEvent.ACTION_UP -> {
+                                    keyPressDetector.onKeyUp(
+                                        event.eventTime,
+                                        onDoublePress = { handleDoublePress() },
+                                        onSinglePress = { handleSinglePress() }
+                                    )
+                                }
+                                // XposedBridge.log("EssentialRemap: Event cancelled, resetting detector")
+                                // keyPressDetector.reset()
                             }
 
-                            // Disabling:
                             // We return 0 so that the system ignores this event.
-                            param.result = 0 
+                            param.result = 0
                         }
                     }
                 }
@@ -61,5 +71,20 @@ class MainHook : IXposedHookLoadPackage {
         } catch (e: Throwable) {
             XposedBridge.log("EssentialRemap Error: " + e.message)
         }
+    }
+
+
+    private fun handleLongPress() {
+        XposedBridge.log("EssentialRemap: ==> LONG PRESS TRIGGERED <==")
+    }
+
+
+    private fun handleDoublePress() {
+        XposedBridge.log("EssentialRemap: ==> DOUBLE PRESS TRIGGERED <==")
+    }
+
+
+    private fun handleSinglePress() {
+        XposedBridge.log("EssentialRemap: ==> SINGLE PRESS TRIGGERED <==")
     }
 }
