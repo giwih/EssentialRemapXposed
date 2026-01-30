@@ -7,6 +7,10 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 
+import android.content.ComponentName
+import android.content.Intent
+import android.content.Context
+
 class MainHook : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
@@ -29,19 +33,25 @@ class MainHook : IXposedHookLoadPackage {
                         if (event.scanCode == 250) {
                             
                             if (event.action == KeyEvent.ACTION_DOWN) {
-                                XposedBridge.log("EssentialRemap: Pressed Essential Key (ScanCode 250)!")
+                                try {
+                                    val intent = Intent().apply {
+                                        component = ComponentName(BuildConfig.TARGET_PKG, BuildConfig.TARGET_CLS)
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    }
+
+                                    // val mContext = XposedHelpers.getObjectField(param.thisObject, "mContext") as Context
+                                    // mContext.startActivity(intent)
+                                    (XposedHelpers.getObjectField(param.thisObject, "mContext") as Context).startActivity(intent)
+                                    
+                                    XposedBridge.log("EssentialRemap: Activity started via Context")
+                                } catch (t: Throwable) {
+                                    XposedBridge.log("EssentialRemap ERROR: ${t.message}")
+                                }
                             }
 
                             // Disabling:
                             // We return 0 so that the system ignores this event.
                             param.result = 0 
-                            
-                            // REASSIGNMENTS:
-                            /*
-                            if (event.action == KeyEvent.ACTION_UP) {
-                                // turn on the flashlight
-                            }
-                            */
                         }
                     }
                 }

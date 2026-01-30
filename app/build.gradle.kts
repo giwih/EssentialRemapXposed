@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -13,6 +12,8 @@ android {
         targetSdk = 34
         versionCode = (project.findProperty("appVerCode") as String).toInt()
         versionName = project.findProperty("appVerName") as String
+        buildConfigField("String", "TARGET_PKG", "${project.findProperty("TARGET_PACKAGE")}")
+        buildConfigField("String", "TARGET_CLS", "${project.findProperty("TARGET_CLASS")}")
     }
 
     compileOptions {
@@ -20,9 +21,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+    buildFeatures {
+            buildConfig = true
+        }
 }
 
 dependencies {
